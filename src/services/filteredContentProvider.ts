@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises';
+import { promises as fs } from 'fs';
 import { Uri, workspace } from 'vscode';
 import type { CompareOptions } from '../types';
 import { applyIgnorePatterns, type IgnorePatternsConfig } from './ignorePatterns';
@@ -74,8 +74,8 @@ export async function getFilteredDiffUris(
   ensureProviderRegistered();
 
   const [content1, content2] = await Promise.all([
-    readFile(file1, 'utf8'),
-    readFile(file2, 'utf8'),
+    fs.readFile(file1, 'utf8'),
+    fs.readFile(file2, 'utf8'),
   ]);
 
   const filtered1 = applyCompareOptions(applyIgnorePatterns(content1, patternConfig), options);
