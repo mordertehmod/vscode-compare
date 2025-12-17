@@ -103,7 +103,7 @@ export function applyIgnorePatterns(content: string, config: IgnorePatternsConfi
       processedContent,
       config.ignoreLinePatterns,
       config.ignoreLineReplacement ?? '',
-      config.ignoreLineDelete ?? false
+      Boolean(config.ignoreLineDelete)
     );
     console.log(`Line patterns applied: ${beforeLength} -> ${processedContent.length} chars`);
   }
