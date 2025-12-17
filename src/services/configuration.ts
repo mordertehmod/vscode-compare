@@ -25,6 +25,8 @@ export interface IConfigurations {
   defaultDiffViewMode: DiffViewMode;
   ignoreLinePatterns: string[] | undefined;
   ignoreCodePatterns: string[] | undefined;
+  ignoreLineReplacement: string | undefined;
+  ignoreLineDelete: boolean | undefined;
 }
 
 type ConfigurationItem = keyof IConfigurations;

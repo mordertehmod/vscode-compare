@@ -14767,7 +14767,7 @@ var require_ignorePatterns = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.validatePatterns = exports2.applyIgnorePatterns = exports2.applyCodePatterns = exports2.applyLinePatterns = void 0;
-    function applyLinePatterns(content, patterns) {
+    function applyLinePatterns(content, patterns, replacement = "", deleteMatched = false) {
       if (!patterns || patterns.length === 0) {
         return content;
       }
@@ -14776,10 +14776,14 @@ var require_ignorePatterns = __commonJS({
         return content;
       }
       const lines = content.split(/\r?\n/);
-      const filteredLines = lines.filter((line) => {
-        return !regexPatterns.some((pattern) => pattern.test(line));
-      });
-      return filteredLines.join("\n");
+      const processedLines = lines.map((line) => {
+        const matched = regexPatterns.some((pattern) => pattern.test(line));
+        if (!matched) {
+          return line;
+        }
+        return deleteMatched ? void 0 : replacement;
+      }).filter((line) => line !== void 0);
+      return processedLines.join("\n");
     }
     exports2.applyLinePatterns = applyLinePatterns;
     function applyCodePatterns(content, patterns) {
@@ -14798,6 +14802,7 @@ var require_ignorePatterns = __commonJS({
     }
     exports2.applyCodePatterns = applyCodePatterns;
     function applyIgnorePatterns(content, config) {
+      var _a, _b;
       let processedContent = content;
       console.log("applyIgnorePatterns - Input length:", content.length);
       console.log("applyIgnorePatterns - Config:", JSON.stringify(config, null, 2));
@@ -14810,7 +14815,7 @@ var require_ignorePatterns = __commonJS({
       if (config.ignoreLinePatterns) {
         console.log("Applying line patterns:", config.ignoreLinePatterns);
         const beforeLength = processedContent.length;
-        processedContent = applyLinePatterns(processedContent, config.ignoreLinePatterns);
+        processedContent = applyLinePatterns(processedContent, config.ignoreLinePatterns, (_a = config.ignoreLineReplacement) !== null && _a !== void 0 ? _a : "", (_b = config.ignoreLineDelete) !== null && _b !== void 0 ? _b : false);
         console.log(`Line patterns applied: ${beforeLength} -> ${processedContent.length} chars`);
       }
       console.log("applyIgnorePatterns - Output length:", processedContent.length);
@@ -15163,7 +15168,7 @@ var require_comparer = __commonJS({
           }
           return;
         } else {
-          const { ignoreLinePatterns, ignoreCodePatterns, ignoreLineEnding, ignoreAllWhiteSpaces, ignoreWhiteSpaces, ignoreEmptyLines } = (0, configuration_12.getConfiguration)("ignoreLinePatterns", "ignoreCodePatterns", "ignoreLineEnding", "ignoreAllWhiteSpaces", "ignoreWhiteSpaces", "ignoreEmptyLines");
+          const { ignoreLinePatterns, ignoreCodePatterns, ignoreLineReplacement, ignoreLineDelete, ignoreLineEnding, ignoreAllWhiteSpaces, ignoreWhiteSpaces, ignoreEmptyLines } = (0, configuration_12.getConfiguration)("ignoreLinePatterns", "ignoreCodePatterns", "ignoreLineReplacement", "ignoreLineDelete", "ignoreLineEnding", "ignoreAllWhiteSpaces", "ignoreWhiteSpaces", "ignoreEmptyLines");
           const hasIgnorePatterns = ignoreLinePatterns && ignoreLinePatterns.length > 0 || ignoreCodePatterns && ignoreCodePatterns.length > 0;
           let leftUri = vscode_12.Uri.file(file1);
           let rightUri = vscode_12.Uri.file(file2);
@@ -15174,7 +15179,7 @@ var require_comparer = __commonJS({
                 ignoreAllWhiteSpaces,
                 ignoreWhiteSpaces,
                 ignoreEmptyLines
-              }, { ignoreLinePatterns, ignoreCodePatterns });
+              }, { ignoreLinePatterns, ignoreCodePatterns, ignoreLineReplacement, ignoreLineDelete });
               leftUri = filteredUris.left;
               rightUri = filteredUris.right;
             } catch (error) {
@@ -15193,7 +15198,7 @@ var require_comparer = __commonJS({
     }
     exports2.showFile = showFile;
     function getOptions() {
-      const { compareContent, ignoreFileNameCase, ignoreExtension, ignoreWhiteSpaces, ignoreAllWhiteSpaces, ignoreEmptyLines, ignoreLineEnding, respectGitIgnore, ignoreLinePatterns, ignoreCodePatterns } = (0, configuration_12.getConfiguration)("compareContent", "ignoreFileNameCase", "ignoreExtension", "ignoreWhiteSpaces", "ignoreAllWhiteSpaces", "ignoreEmptyLines", "ignoreLineEnding", "respectGitIgnore", "ignoreLinePatterns", "ignoreCodePatterns");
+      const { compareContent, ignoreFileNameCase, ignoreExtension, ignoreWhiteSpaces, ignoreAllWhiteSpaces, ignoreEmptyLines, ignoreLineEnding, respectGitIgnore, ignoreLinePatterns, ignoreCodePatterns, ignoreLineReplacement, ignoreLineDelete } = (0, configuration_12.getConfiguration)("compareContent", "ignoreFileNameCase", "ignoreExtension", "ignoreWhiteSpaces", "ignoreAllWhiteSpaces", "ignoreEmptyLines", "ignoreLineEnding", "respectGitIgnore", "ignoreLinePatterns", "ignoreCodePatterns", "ignoreLineReplacement", "ignoreLineDelete");
       if (ignoreLinePatterns && ignoreLinePatterns.length > 0) {
         const validation = (0, ignorePatterns_1.validatePatterns)(ignoreLinePatterns);
         if (!validation.valid) {
@@ -15211,7 +15216,12 @@ ${validation.errors.join("\n")}`);
       const { excludeFilter, includeFilter } = (0, includeExcludeFilesGetter_1.getIncludeAndExcludePaths)();
       const filterHandler = respectGitIgnore ? (0, gitignoreFilter_1.getGitignoreFilter)(...path_1.pathContext.getPaths()) : void 0;
       const hasIgnorePatterns = ignoreLinePatterns && ignoreLinePatterns.length > 0 || ignoreCodePatterns && ignoreCodePatterns.length > 0;
-      const compareFileAsync = hasIgnorePatterns ? (0, customFileCompare_1.createCustomFileCompare)({ ignoreLinePatterns, ignoreCodePatterns }) : dir_compare_1.fileCompareHandlers.lineBasedFileCompare.compareAsync;
+      const compareFileAsync = hasIgnorePatterns ? (0, customFileCompare_1.createCustomFileCompare)({
+        ignoreLinePatterns,
+        ignoreCodePatterns,
+        ignoreLineReplacement,
+        ignoreLineDelete
+      }) : dir_compare_1.fileCompareHandlers.lineBasedFileCompare.compareAsync;
       const options = {
         compareContent,
         excludeFilter,

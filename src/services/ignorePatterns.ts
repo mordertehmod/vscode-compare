@@ -6,15 +6,24 @@
 export interface IgnorePatternsConfig {
   ignoreLinePatterns?: string[];
   ignoreCodePatterns?: string[];
+  ignoreLineReplacement?: string;
+  ignoreLineDelete?: boolean;
 }
 
 /**
  * Processes file content by removing lines that match ignore patterns.
  * @param content - The file content to process
  * @param patterns - Array of regex pattern strings to match against lines
- * @returns Processed content with matching lines removed
+ * @param replacement - Replacement text to use for matching lines (default: empty string)
+ * @param deleteMatched - If true, matched lines are removed entirely
+ * @returns Processed content with matching lines replaced/removed
  */
-export function applyLinePatterns(content: string, patterns: string[]): string {
+export function applyLinePatterns(
+  content: string,
+  patterns: string[],
+  replacement: string = '',
+  deleteMatched: boolean = false
+): string {
   if (!patterns || patterns.length === 0) {
     return content;
   }
@@ -26,11 +35,17 @@ export function applyLinePatterns(content: string, patterns: string[]): string {
   }
 
   const lines = content.split(/\r?\n/);
-  const filteredLines = lines.filter(line => {
-    return !regexPatterns.some(pattern => pattern.test(line));
-  });
+  const processedLines = lines
+    .map((line) => {
+      const matched = regexPatterns.some((pattern) => pattern.test(line));
+      if (!matched) {
+        return line;
+      }
+      return deleteMatched ? undefined : replacement;
+    })
+    .filter((line) => line !== undefined) as string[];
 
-  return filteredLines.join('\n');
+  return processedLines.join('\n');
 }
 
 /**
@@ -84,7 +99,12 @@ export function applyIgnorePatterns(content: string, config: IgnorePatternsConfi
   if (config.ignoreLinePatterns) {
     console.log('Applying line patterns:', config.ignoreLinePatterns);
     const beforeLength = processedContent.length;
-    processedContent = applyLinePatterns(processedContent, config.ignoreLinePatterns);
+    processedContent = applyLinePatterns(
+      processedContent,
+      config.ignoreLinePatterns,
+      config.ignoreLineReplacement ?? '',
+      config.ignoreLineDelete ?? false
+    );
     console.log(`Line patterns applied: ${beforeLength} -> ${processedContent.length} chars`);
   }
 

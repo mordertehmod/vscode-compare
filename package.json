@@ -1,8 +1,8 @@
 {
   "name": "compare-folders",
-  "displayName": "Compare Folders",
+  "displayName": "Zaddi Compare",
   "description": "Compare folders by contents, present the files that have differences and display the diffs side by side",
-  "version": "0.25.5",
+  "version": "4.20.69",
   "repository": {
     "type": "git",
     "url": "https://github.com/moshfeu/vscode-compare-folders"
@@ -18,11 +18,11 @@
     "color": "#ffbe6c",
     "theme": "light"
   },
-  "publisher": "moshfeu",
+  "publisher": "lsdzaddi",
   "author": {
-    "name": "Mosh Feuchtwanger",
-    "email": "moshfeu.dev@gmail.com",
-    "url": "https://twitter.com/moshfeu"
+    "name": "",
+    "email": "",
+    "url": ""
   },
   "engines": {
     "vscode": "^1.38.0",
@@ -135,6 +135,18 @@
           "items": {
             "type": "string"
           }
+        },
+        "compareFolders.ignoreLineReplacement": {
+          "type": "string",
+          "default": "",
+          "description": "Replacement text to insert when a line matches ignoreLinePatterns. Leave empty to blank the line.",
+          "scope": "resource"
+        },
+        "compareFolders.ignoreLineDelete": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, remove lines that match ignoreLinePatterns entirely instead of replacing them.",
+          "scope": "resource"
         },
         "compareFolders.diffViewTitle": {
           "type": "string",

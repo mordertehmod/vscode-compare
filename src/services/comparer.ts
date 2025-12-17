@@ -61,6 +61,8 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
     const {
       ignoreLinePatterns,
       ignoreCodePatterns,
+      ignoreLineReplacement,
+      ignoreLineDelete,
       ignoreLineEnding,
       ignoreAllWhiteSpaces,
       ignoreWhiteSpaces,
@@ -68,6 +70,8 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
     } = getConfiguration(
       'ignoreLinePatterns',
       'ignoreCodePatterns',
+      'ignoreLineReplacement',
+      'ignoreLineDelete',
       'ignoreLineEnding',
       'ignoreAllWhiteSpaces',
       'ignoreWhiteSpaces',
@@ -92,7 +96,7 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
             ignoreWhiteSpaces,
             ignoreEmptyLines,
           } as CompareOptions,
-          { ignoreLinePatterns, ignoreCodePatterns }
+          { ignoreLinePatterns, ignoreCodePatterns, ignoreLineReplacement, ignoreLineDelete }
         );
 
         leftUri = filteredUris.left;
@@ -127,6 +131,8 @@ function getOptions() {
     respectGitIgnore,
     ignoreLinePatterns,
     ignoreCodePatterns,
+    ignoreLineReplacement,
+    ignoreLineDelete,
   } = getConfiguration(
     'compareContent',
     'ignoreFileNameCase',
@@ -138,6 +144,8 @@ function getOptions() {
     'respectGitIgnore',
     'ignoreLinePatterns',
     'ignoreCodePatterns',
+    'ignoreLineReplacement',
+    'ignoreLineDelete',
   );
 
   // Validate ignore patterns if provided
@@ -167,7 +175,12 @@ function getOptions() {
     (ignoreCodePatterns && ignoreCodePatterns.length > 0);
 
   const compareFileAsync = hasIgnorePatterns
-    ? createCustomFileCompare({ ignoreLinePatterns, ignoreCodePatterns })
+    ? createCustomFileCompare({
+        ignoreLinePatterns,
+        ignoreCodePatterns,
+        ignoreLineReplacement,
+        ignoreLineDelete,
+      })
     : fileCompareHandlers.lineBasedFileCompare.compareAsync;
 
   const options: CompareOptions = {
