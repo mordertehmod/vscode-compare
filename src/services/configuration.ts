@@ -23,6 +23,8 @@ export interface IConfigurations {
   ignoreLineEnding: boolean;
   respectGitIgnore: boolean;
   defaultDiffViewMode: DiffViewMode;
+  ignoreLinePatterns: string[] | undefined;
+  ignoreCodePatterns: string[] | undefined;
 }
 
 type ConfigurationItem = keyof IConfigurations;

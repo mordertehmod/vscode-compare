@@ -11,6 +11,9 @@ import { showErrorMessage } from '../utils/ui';
 import { validatePermissions } from './validators';
 import { getIncludeAndExcludePaths } from './includeExcludeFilesGetter';
 import { getGitignoreFilter } from './gitignoreFilter';
+import { createCustomFileCompare } from './customFileCompare';
+import { validatePatterns } from './ignorePatterns';
+import { getFilteredDiffUris } from './filteredContentProvider';
 
 const diffMergeExtension = extensions.getExtension('moshfeu.diff-merge');
 
@@ -55,10 +58,54 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
     }
     return;
   } else {
+    const {
+      ignoreLinePatterns,
+      ignoreCodePatterns,
+      ignoreLineEnding,
+      ignoreAllWhiteSpaces,
+      ignoreWhiteSpaces,
+      ignoreEmptyLines,
+    } = getConfiguration(
+      'ignoreLinePatterns',
+      'ignoreCodePatterns',
+      'ignoreLineEnding',
+      'ignoreAllWhiteSpaces',
+      'ignoreWhiteSpaces',
+      'ignoreEmptyLines'
+    );
+
+    const hasIgnorePatterns =
+      (ignoreLinePatterns && ignoreLinePatterns.length > 0) ||
+      (ignoreCodePatterns && ignoreCodePatterns.length > 0);
+
+    let leftUri = Uri.file(file1);
+    let rightUri = Uri.file(file2);
+
+    if (hasIgnorePatterns) {
+      try {
+        const filteredUris = await getFilteredDiffUris(
+          file1,
+          file2,
+          {
+            ignoreLineEnding,
+            ignoreAllWhiteSpaces,
+            ignoreWhiteSpaces,
+            ignoreEmptyLines,
+          } as CompareOptions,
+          { ignoreLinePatterns, ignoreCodePatterns }
+        );
+
+        leftUri = filteredUris.left;
+        rightUri = filteredUris.right;
+      } catch (error) {
+        log('error while preparing filtered diff content, falling back to raw files', error);
+      }
+    }
+
     commands.executeCommand(
       'vscode.diff',
-      Uri.file(file1),
-      Uri.file(file2),
+      leftUri,
+      rightUri,
       getTitle(file1, relativePath, compareIgnoredExtension(file1, file2) ? 'full path' : undefined)
     );
   }
@@ -78,6 +125,8 @@ function getOptions() {
     ignoreEmptyLines,
     ignoreLineEnding,
     respectGitIgnore,
+    ignoreLinePatterns,
+    ignoreCodePatterns,
   } = getConfiguration(
     'compareContent',
     'ignoreFileNameCase',
@@ -87,10 +136,39 @@ function getOptions() {
     'ignoreEmptyLines',
     'ignoreLineEnding',
     'respectGitIgnore',
+    'ignoreLinePatterns',
+    'ignoreCodePatterns',
   );
+
+  // Validate ignore patterns if provided
+  if (ignoreLinePatterns && ignoreLinePatterns.length > 0) {
+    const validation = validatePatterns(ignoreLinePatterns);
+    if (!validation.valid) {
+      window.showWarningMessage(
+        `Invalid ignore line patterns detected:\n${validation.errors.join('\n')}`
+      );
+    }
+  }
+  if (ignoreCodePatterns && ignoreCodePatterns.length > 0) {
+    const validation = validatePatterns(ignoreCodePatterns);
+    if (!validation.valid) {
+      window.showWarningMessage(
+        `Invalid ignore code patterns detected:\n${validation.errors.join('\n')}`
+      );
+    }
+  }
 
   const { excludeFilter, includeFilter } = getIncludeAndExcludePaths();
   const filterHandler = respectGitIgnore ? getGitignoreFilter(...pathContext.getPaths()) : undefined;
+
+  // Determine which file compare function to use
+  const hasIgnorePatterns =
+    (ignoreLinePatterns && ignoreLinePatterns.length > 0) ||
+    (ignoreCodePatterns && ignoreCodePatterns.length > 0);
+
+  const compareFileAsync = hasIgnorePatterns
+    ? createCustomFileCompare({ ignoreLinePatterns, ignoreCodePatterns })
+    : fileCompareHandlers.lineBasedFileCompare.compareAsync;
 
   const options: CompareOptions = {
     compareContent,
@@ -103,7 +181,7 @@ function getOptions() {
     ignoreEmptyLines,
     ignoreLineEnding,
     filterHandler,
-    compareFileAsync: fileCompareHandlers.lineBasedFileCompare.compareAsync,
+    compareFileAsync,
     compareNameHandler: (ignoreExtension && compareName) || undefined,
   };
   return options;

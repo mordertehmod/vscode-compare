@@ -84,6 +84,22 @@ There are several ways to choose folders to compare:
 - `ignoreWhiteSpaces` - boolean - ignore white spaces at the beginning and ending of a line (similar to `diff -b`)
 - `ignoreAllWhiteSpaces` - boolean - ignore all white space differences (similar to `diff -w`)
 - `ignoreEmptyLines` - boolean - ignore differences caused by empty lines (similar to `diff -B`)
+- `ignoreLinePatterns` - array of regex patterns - ignore entire lines that match any of the provided patterns during comparison. Useful for ignoring comments, debug statements, or other line-level differences.
+***Example***
+```json
+"compareFolders.ignoreLinePatterns": [
+  "^\\s*//.*$",
+  "^\\s*console\\.log\\(.*\\);?\\s*$"
+]
+```
+- `ignoreCodePatterns` - array of regex patterns - ignore specific code snippets within lines that match any of the provided patterns during comparison. Useful for ignoring inline comments or specific code fragments.
+***Example***
+```json
+"compareFolders.ignoreCodePatterns": [
+  "\\s*//.*$",
+  "/\\*.*?\\*/"
+]
+```
 - `respectGitIgnore` - boolean - include / exclude files based on .gitignore - this option works together with `includeFilter` and `excludeFilter` options. ⚠️ The extension supports the main basic gitignore rules. For instance, it supports negation (`!`), but it doesn't support .gitignore files in subfolders. If there is an important use case that is not supported, please open an issue.
 - `warnBeforeDelete` - boolean - Show a warning message before deleting files
 - `warnBeforeTake` - boolean - Show a warning message before taking/replacing files  

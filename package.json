@@ -2,7 +2,7 @@
   "name": "compare-folders",
   "displayName": "Compare Folders",
   "description": "Compare folders by contents, present the files that have differences and display the diffs side by side",
-  "version": "0.25.3",
+  "version": "0.25.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/moshfeu/vscode-compare-folders"
@@ -117,6 +117,24 @@
           "type": "boolean",
           "description": "Include / Exclude files based on .gitignore",
           "scope": "resource"
+        },
+        "compareFolders.ignoreLinePatterns": {
+          "type": "array",
+          "default": [],
+          "description": "Array of regex patterns to ignore entire lines that match during comparison (e.g., [\"^\\\\s*//.*$\", \"^\\\\s*console\\\\.log\"])",
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          }
+        },
+        "compareFolders.ignoreCodePatterns": {
+          "type": "array",
+          "default": [],
+          "description": "Array of regex patterns to ignore specific code snippets within lines during comparison (e.g., [\"\\\\s+\", \"//.*$\"])",
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          }
         },
         "compareFolders.diffViewTitle": {
           "type": "string",
@@ -447,6 +465,7 @@
     "dir-compare": "^4.2.0",
     "fs-extra": "8.1.0",
     "lodash": "^4.17.21",
-    "parse-gitignore": "^2.0.0"
+    "parse-gitignore": "^2.0.0",
+    "yarn": "^1.22.22"
   }
 }
