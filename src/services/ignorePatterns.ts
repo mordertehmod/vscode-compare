@@ -123,8 +123,8 @@ function compilePatterns(patterns: string[], useMultiline: boolean = false): Reg
   for (const pattern of patterns) {
     try {
       // For multi-line patterns (code patterns), use 'gms' flags
-      // For line patterns, use only 'gm' to prevent . from matching newlines
-      const flags = useMultiline ? 'gms' : 'gm';
+      // For line patterns, use only 'm' to prevent stateful global regex side effects
+      const flags = useMultiline ? 'gms' : 'm';
       const regex = new RegExp(pattern, flags);
       compiled.push(regex);
     } catch (error) {
