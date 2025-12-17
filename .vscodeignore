@@ -1,6 +1,7 @@
 .vscode/**
 .vscode-test/**
 out/test/**
+out/**
 src/**
 .gitignore
 **/tsconfig.json
@@ -9,3 +10,6 @@ src/**
 **/*.ts
 .env
 azure-pipelines.yml
+.git/**
+.github/** 
+.claude/**

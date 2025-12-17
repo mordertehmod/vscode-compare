@@ -34,7 +34,7 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "icons": {
       "comparefolders-icon": {
@@ -433,10 +433,11 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "yarn run compile",
     "compile": "tsc -p ./",
+    "bundle": "yarn run compile && esbuild ./out/extension.js --bundle --external:vscode --format=cjs --platform=node --sourcemap --outfile=dist/extension.js",
+    "vscode:prepublish": "yarn run bundle",
     "watch": "tsc -watch -p ./",
-    "pretest": "yarn run compile",
+    "pretest": "yarn run bundle",
     "test": "node ./out/test/runTest.js",
     "deploy": "npx vsce publish -p",
     "deploy:insider": "node scripts/deploy-insider.js",
@@ -454,6 +455,7 @@
     "@types/vscode": "^1.38.0",
     "@vscode/test-electron": "^2.3.8",
     "dotenv": "^8.2.0",
+    "esbuild": "^0.19.12",
     "glob": "^7.1.4",
     "mocha": "^10.2.0",
     "sinon": "^14.0.0",
