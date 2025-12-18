@@ -148,6 +148,12 @@
           "description": "When true, remove lines that match ignoreLinePatterns entirely instead of replacing them.",
           "scope": "resource"
         },
+        "compareFolders.useFilteredDiffView": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show diffs against filtered content (ignores matched patterns). Disable to keep diffs editable.",
+          "scope": "window"
+        },
         "compareFolders.diffViewTitle": {
           "type": "string",
           "default": "name only",

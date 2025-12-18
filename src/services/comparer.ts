@@ -67,6 +67,7 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
       ignoreAllWhiteSpaces,
       ignoreWhiteSpaces,
       ignoreEmptyLines,
+      useFilteredDiffView,
     } = getConfiguration(
       'ignoreLinePatterns',
       'ignoreCodePatterns',
@@ -75,7 +76,8 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
       'ignoreLineEnding',
       'ignoreAllWhiteSpaces',
       'ignoreWhiteSpaces',
-      'ignoreEmptyLines'
+      'ignoreEmptyLines',
+      'useFilteredDiffView'
     );
 
     const hasIgnorePatterns =
@@ -85,7 +87,7 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
     let leftUri = Uri.file(file1);
     let rightUri = Uri.file(file2);
 
-    if (hasIgnorePatterns) {
+    if (hasIgnorePatterns && useFilteredDiffView) {
       try {
         const filteredUris = await getFilteredDiffUris(
           file1,
