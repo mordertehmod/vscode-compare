@@ -14,6 +14,7 @@ import { getGitignoreFilter } from './gitignoreFilter';
 import { createCustomFileCompare } from './customFileCompare';
 import { validatePatterns } from './ignorePatterns';
 import { getFilteredDiffUris } from './filteredContentProvider';
+import { applyLineIgnoreDecorations } from './ignoreDecorations';
 
 const diffMergeExtension = extensions.getExtension('moshfeu.diff-merge');
 
@@ -68,6 +69,7 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
       ignoreWhiteSpaces,
       ignoreEmptyLines,
       useFilteredDiffView,
+      useDecoratedDiffView,
     } = getConfiguration(
       'ignoreLinePatterns',
       'ignoreCodePatterns',
@@ -77,7 +79,8 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
       'ignoreAllWhiteSpaces',
       'ignoreWhiteSpaces',
       'ignoreEmptyLines',
-      'useFilteredDiffView'
+      'useFilteredDiffView',
+      'useDecoratedDiffView'
     );
 
     const hasIgnorePatterns =
@@ -114,6 +117,12 @@ export async function showDiffs([file1, file2]: [string, string], relativePath: 
       rightUri,
       getTitle(file1, relativePath, compareIgnoredExtension(file1, file2) ? 'full path' : undefined)
     );
+
+    if (hasIgnorePatterns && useDecoratedDiffView && ignoreLinePatterns?.length) {
+      // Allow the diff editor to render, then apply decorations to the backing docs
+      setTimeout(() => applyLineIgnoreDecorations([file1, file2], ignoreLinePatterns), 150);
+      setTimeout(() => applyLineIgnoreDecorations([file1, file2], ignoreLinePatterns), 500);
+    }
   }
 }
 

@@ -28,6 +28,7 @@ export interface IConfigurations {
   ignoreLineReplacement: string | undefined;
   ignoreLineDelete: boolean | undefined;
   useFilteredDiffView: boolean | undefined;
+  useDecoratedDiffView: boolean | undefined;
 }
 
 type ConfigurationItem = keyof IConfigurations;

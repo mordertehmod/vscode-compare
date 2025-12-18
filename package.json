@@ -151,7 +151,13 @@
         "compareFolders.useFilteredDiffView": {
           "type": "boolean",
           "default": false,
-          "description": "Show diffs against filtered content (ignores matched patterns). Disable to keep diffs editable.",
+          "description": "Show diffs against filtered content (ignores matched patterns). This uses read-only virtual documents; leave disabled to keep diffs editable.",
+          "scope": "window"
+        },
+        "compareFolders.useDecoratedDiffView": {
+          "type": "boolean",
+          "default": true,
+          "description": "Visually hide lines that match ignoreLinePatterns using decorations while keeping the diff editable.",
           "scope": "window"
         },
         "compareFolders.diffViewTitle": {
